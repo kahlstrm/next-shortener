@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "kysely-generate": "atlas schema apply --url \"sqlite://local.db\" --to \"file://db_migration/schema.hcl\" --auto-approve && DATABASE_URL=local.db kysely-codegen",
-    "postinstall": "pnpm kysely-generate"
+    "kysely-generate": "atlas schema apply --url \"sqlite://local.db\" --to \"file://db_migration/schema.hcl\" --auto-approve && DATABASE_URL=local.db kysely-codegen"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.23.2",
