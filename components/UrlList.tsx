@@ -11,6 +11,7 @@ import {
 } from "./ui/table";
 import { generateUrl } from "../lib/utils";
 import { unstable_cache } from "next/cache";
+import { CopyToClipBoard } from "./CopyToClipBoard";
 
 export async function UrlList() {
   const { userId } = auth();
@@ -42,8 +43,9 @@ export async function UrlList() {
         <TableCaption>Your Generated Shortened Urls</TableCaption>
         <TableHeader>
           <TableRow>
-            <TableHead>URL</TableHead>
-            <TableHead>Shortened Link</TableHead>
+            <TableHead>URL-target</TableHead>
+            <TableHead>Suffix</TableHead>
+            <TableHead>Link</TableHead>
             <TableHead>Modified at</TableHead>
           </TableRow>
         </TableHeader>
@@ -53,22 +55,16 @@ export async function UrlList() {
               <TableCell>
                 <a
                   className="underline"
-                  href="http://"
+                  href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   {item.url}
                 </a>
               </TableCell>
+              <TableCell>{item.shorthand}</TableCell>
               <TableCell>
-                <a
-                  className="underline"
-                  href={generateUrl(item.shorthand)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {generateUrl(item.shorthand)}
-                </a>
+                <CopyToClipBoard url={generateUrl(item.shorthand)} />
               </TableCell>
               <TableCell>{item.last_modified}</TableCell>
             </TableRow>
