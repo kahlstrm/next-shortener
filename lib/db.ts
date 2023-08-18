@@ -1,6 +1,6 @@
 import { Kysely } from "kysely";
-import { DB } from "kysely-codegen";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
+import { DB } from "../types/db";
 
 export const getDB = () =>
   new Kysely<DB>({
