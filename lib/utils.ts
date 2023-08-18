@@ -5,5 +5,5 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 export function generateUrl(shorthand: string) {
-  return `${process.env.VERCEL_URL}/${shorthand}`;
+  return `${process.env.DOMAIN_URL}/${shorthand}`;
 }
