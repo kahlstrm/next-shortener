@@ -40,8 +40,11 @@ export async function POST(req: NextRequest) {
             .insertInto("shortened_links")
             .values({ user_id: userId, url, shorthand: short })
             .executeTakeFirstOrThrow();
+          inserted = true;
           break;
         } catch (e) {
+          console.error(e);
+          short = new ShortUniqueId({ length }).randomUUID();
           tries++;
         }
       }
