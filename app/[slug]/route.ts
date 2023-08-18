@@ -6,7 +6,8 @@ export const runtime = "edge";
 
 export async function GET(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const shorthand = pathname.slice(1);
+  const shorthand = decodeURI(pathname).slice(1);
+  console.log(shorthand);
   const doc = await unstable_cache(
     async () => {
       console.log("fetching path", shorthand);
