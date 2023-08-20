@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^4.23.2",
+    "@clerk/themes": "^1.7.5",
     "@hookform/resolvers": "^3.2.0",
     "@libsql/hrana-client": "^0.4.4",
     "@libsql/kysely-libsql": "^0.3.0",
