@@ -59,7 +59,9 @@ export async function UrlList() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {item.url}
+                  {item.url.length > 60
+                    ? item.url.substring(0, 60) + "..."
+                    : item.url}
                 </a>
               </TableCell>
               <TableCell>{item.shorthand}</TableCell>
