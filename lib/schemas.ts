@@ -3,6 +3,7 @@ import { z } from "zod";
 export const formSchema = z.object({
   url: z
     .string()
+    .startsWith("http", "URL must start with http:// or https://")
     .url("Please enter a valid URL")
     .max(2000, "URL must be shorter than 2000 characters"),
   shorthand: z
