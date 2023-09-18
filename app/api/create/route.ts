@@ -4,7 +4,6 @@ import { getDB } from "../../../lib/db";
 import ShortUniqueId from "short-unique-id";
 import { formSchema } from "../../../lib/schemas";
 import { ZodError } from "zod";
-import { generateUrl } from "../../../lib/utils";
 import { revalidateTag } from "next/cache";
 
 export const runtime = "edge";
@@ -66,5 +65,5 @@ export async function POST(req: NextRequest) {
     }
   }
   revalidateTag("getUserUrls" + userId);
-  return NextResponse.json({ url, shorthand: generateUrl(short) });
+  return NextResponse.json({ url, shorthand: short });
 }

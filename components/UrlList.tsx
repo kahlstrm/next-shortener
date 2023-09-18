@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { generateUrl } from "../lib/utils";
 import { unstable_cache } from "next/cache";
 import { CopyToClipBoard } from "./CopyToClipBoard";
 
@@ -66,7 +65,7 @@ export async function UrlList() {
               </TableCell>
               <TableCell>{item.shorthand}</TableCell>
               <TableCell>
-                <CopyToClipBoard url={generateUrl(item.shorthand)} />
+                <CopyToClipBoard path={item.shorthand} />
               </TableCell>
               <TableCell>{item.last_modified}</TableCell>
             </TableRow>
