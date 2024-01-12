@@ -29,7 +29,7 @@
     "eslint-config-next": "13.4.17",
     "kysely": "^0.26.3",
     "kysely-codegen": "^0.10.1",
-    "next": "13.4.17",
+    "next": "13.5.1",
     "postcss": "8.4.28",
     "react": "18.2.0",
     "react-dom": "18.2.0",
