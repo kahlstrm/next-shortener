@@ -5,6 +5,7 @@ Basic URL-shortener, trying out the new App Router & RSC Next.JS along with some
 You need to setup [Clerk](https://clerk.com/) for auth, [Atlas](https://atlasgo.io/) for db-migration and [Turso](https://turso.tech/) for DB connection.
 
 ```shell
+cp .env.example .env.local
 pnpm install
 pnpm dev
 ```
