@@ -3,6 +3,7 @@ import { getDB } from "../../lib/db";
 import { unstable_cache } from "next/cache";
 
 export const runtime = "edge";
+export const preferredRegion = ["fra1", "iad1"];
 
 export async function GET(request: NextRequest) {
   const { pathname } = request.nextUrl;

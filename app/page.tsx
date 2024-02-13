@@ -3,6 +3,9 @@ import { UrlForm } from "../components/UrlForm";
 import { UrlList } from "../components/UrlList";
 import { dark } from "@clerk/themes";
 
+export const runtime = "edge";
+export const preferredRegion = ["fra1", "iad1"];
+
 export default function Home() {
   return (
     <>

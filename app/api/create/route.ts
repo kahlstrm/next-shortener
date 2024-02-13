@@ -7,7 +7,7 @@ import { ZodError } from "zod";
 import { revalidateTag } from "next/cache";
 
 export const runtime = "edge";
-
+export const preferredRegion = ["fra1", "iad1"];
 export async function POST(req: NextRequest) {
   const { userId } = auth();
   if (!userId)
