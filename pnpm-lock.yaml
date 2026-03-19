@@ -19,7 +19,7 @@ dependencies:
     version: 0.4.4
   '@libsql/kysely-libsql':
     specifier: ^0.3.0
-    version: 0.3.0(kysely@0.26.3)
+    version: 0.3.0(kysely@0.28.12)
   '@radix-ui/react-icons':
     specifier: ^1.3.0
     version: 1.3.0(react@18.2.0)
@@ -57,11 +57,11 @@ dependencies:
     specifier: ^14.1.0
     version: 14.1.0(eslint@8.47.0)(typescript@5.1.6)
   kysely:
-    specifier: ^0.26.3
-    version: 0.26.3
+    specifier: ^0.28.12
+    version: 0.28.12
   kysely-codegen:
     specifier: ^0.10.1
-    version: 0.10.1(kysely@0.26.3)
+    version: 0.10.1(kysely@0.28.12)
   next:
     specifier: ^14.2.35
     version: 14.2.35(react-dom@18.2.0)(react@18.2.0)
@@ -349,13 +349,13 @@ packages:
       - utf-8-validate
     dev: false
 
-  /@libsql/kysely-libsql@0.3.0(kysely@0.26.3):
+  /@libsql/kysely-libsql@0.3.0(kysely@0.28.12):
     resolution: {integrity: sha512-UEZB2giBFSR0NPwx2a8TxdnBEq20u7LfHupiwFc0t0VXAP1URdrSVv84rjMl/EAEs1tC6/Ex6O+OppwoKoJRbg==}
     peerDependencies:
       kysely: '*'
     dependencies:
       '@libsql/hrana-client': 0.4.4
-      kysely: 0.26.3
+      kysely: 0.28.12
     transitivePeerDependencies:
       - bufferutil
       - encoding
@@ -2478,7 +2478,7 @@ packages:
       json-buffer: 3.0.1
     dev: false
 
-  /kysely-codegen@0.10.1(kysely@0.26.3):
+  /kysely-codegen@0.10.1(kysely@0.28.12):
     resolution: {integrity: sha512-8Bslh952gN5gtucRv4jTZDFD18RBioS6M50zHfe5kwb5iSyEAunU4ZYMdHzkHraa4zxjg5/183XlOryBCXLRIw==}
     hasBin: true
     peerDependencies:
@@ -2496,14 +2496,14 @@ packages:
     dependencies:
       chalk: 4.1.2
       dotenv: 16.3.1
-      kysely: 0.26.3
+      kysely: 0.28.12
       micromatch: 4.0.5
       minimist: 1.2.8
     dev: false
 
-  /kysely@0.26.3:
-    resolution: {integrity: sha512-yWSgGi9bY13b/W06DD2OCDDHQmq1kwTGYlQ4wpZkMOJqMGCstVCFIvxCCVG4KfY1/3G0MhDAcZsip/Lw8/vJWw==}
-    engines: {node: '>=14.0.0'}
+  /kysely@0.28.12:
+    resolution: {integrity: sha512-kWiueDWXhbCchgiotwXkwdxZE/6h56IHAeFWg4euUfW0YsmO9sxbAxzx1KLLv2lox15EfuuxHQvgJ1qIfZuHGw==}
+    engines: {node: '>=20.0.0'}
     dev: false
 
   /language-subtag-registry@0.3.22:
