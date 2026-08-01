@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { getDB } from "../lib/db";
 import {
   Table,
@@ -13,7 +13,7 @@ import { unstable_cache } from "next/cache";
 import { CopyToClipBoard } from "./CopyToClipBoard";
 
 export async function UrlList() {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId) {
     return null;
   }

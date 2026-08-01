@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { getDB } from "../../../lib/db";
 import ShortUniqueId from "short-unique-id";
@@ -9,7 +9,7 @@ import { revalidateTag } from "next/cache";
 export const runtime = "edge";
 export const preferredRegion = ["fra1", "iad1"];
 export async function POST(req: NextRequest) {
-  const { userId } = auth();
+  const { userId } = await auth();
   if (!userId)
     return NextResponse.json(
       { error: "You must be logged in" },
