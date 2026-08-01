@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "kysely-generate": "atlas schema apply --url \"sqlite://local.db\" --to \"file://db_migration/schema.hcl\" --auto-approve && DATABASE_URL=local.db kysely-codegen --out-file ./types/db.d.ts"
   },
   "dependencies": {
@@ -25,11 +25,11 @@
     "autoprefixer": "10.5.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "eslint": "8.47.0",
-    "eslint-config-next": "^15.5.22",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.12",
     "kysely": "^0.29.4",
     "kysely-codegen": "^0.10.1",
-    "next": "^15.5.22",
+    "next": "^16.2.12",
     "postcss": "8.5.25",
     "react": "19.2.8",
     "react-dom": "19.2.8",
