@@ -11,7 +11,7 @@ export default function Home() {
     <>
       <main className="flex flex-col items-center min-h-screen">
         <div className="absolute right-4 top-4">
-          <UserButton appearance={{ baseTheme: dark }} />
+          <UserButton appearance={{ theme: dark }} />
         </div>
         <h2 className="scroll-m-20 font-extrabold tracking-tight lg:text-1xl p-4">
           Totally not the worst URL-shortener that ever existed

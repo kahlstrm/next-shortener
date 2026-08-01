@@ -7,7 +7,7 @@ export const preferredRegion = ["fra1", "iad1"];
 export default function Page() {
   return (
     <main className="min-h-screen flex justify-center items-center p-24">
-      <SignIn appearance={{ baseTheme: dark }} />
+      <SignIn appearance={{ theme: dark }} />
     </main>
   );
 }

@@ -1,4 +1,13 @@
 # pnpm 11 blocks dependency build scripts by default; pnpm 8 ran them all.
-# unrs-resolver builds the native resolver used by eslint-import-resolver-typescript.
+# unrs-resolver builds the native resolver used by eslint-import-resolver-typescript,
+# sharp builds the native image optimiser Next.js uses at build time.
 allowBuilds:
+  "@clerk/shared": true
+  sharp: true
   unrs-resolver: true
+
+# Next pins postcss to exactly 8.4.31, which carries three advisories and left a
+# second copy alongside the 8.5.x this project already depends on directly.
+# 8.5.x is a backwards-compatible minor, so dedupe both to one patched version.
+overrides:
+  postcss: 8.5.25
