@@ -1,17 +1,21 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware();
+// v4's `authMiddleware({})` protected every matched route by default; v5+'s
+// `clerkMiddleware()` protects nothing unless asked. Only the home page relied
+// on that redirect — `/api/create` checks `auth()` itself and answers 401, and
+// forcing protection there turns its JSON 401 into a 405.
+const isProtectedRoute = createRouteMatcher(["/"]);
 
-// Clerk's recommended matcher. The v4 `authMiddleware` worked with a narrow
-// ["/", "/api/create"] list, but `clerkMiddleware` must also run on the sign-in
-// and sign-up routes and on Clerk's own /__clerk endpoints — otherwise the
-// dev-browser handshake never completes and sign-in silently fails.
-// https://clerk.com/docs/references/nextjs/clerk-middleware
+export default clerkMiddleware(async (auth, req) => {
+  if (isProtectedRoute(req)) {
+    await auth.protect();
+  }
+});
+
+// Wider than the protected set on purpose: `clerkMiddleware` must also run on
+// the sign-in and sign-up routes or the handshake never completes and sign-in
+// silently fails. `/[slug]` is deliberately excluded — it is the public
+// redirect hot path and must not be pulled into Clerk's handshake.
 export const config = {
-  matcher: [
-    // Skip Next.js internals and static files, unless referenced in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ["/", "/api/create", "/sign-in(.*)", "/sign-up(.*)"],
 };
