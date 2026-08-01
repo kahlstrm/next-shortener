@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "kysely-generate": "DATABASE_URL=file:local.db pnpm db:migrate && DATABASE_URL=local.db kysely-codegen --out-file ./types/db.d.ts",
-    "db:migrate": "node db_migration/migrate.mts"
+    "db:migrate": "node db_migration/migrate.mts",
+    "test:db": "node --test db_migration/**/*.test.mts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.6.4",
