@@ -60,6 +60,27 @@ it. Run it after adding a migration so the generated types match.
 Migration behaviour is covered by `pnpm test:db`, which runs in CI against throwaway
 SQLite files — no database required.
 
+## Tests
+
+```shell
+pnpm test:db    # migration unit tests (node --test)
+pnpm test:e2e   # end-to-end (Playwright)
+```
+
+The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
+container via testcontainers, migrates it, and runs the app against it, so **Docker must be
+running**. A container is used rather than a SQLite file because every route sets
+`runtime = "edge"`, where `@libsql/client` is the web build and cannot open local files.
+
+`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is required for the app to boot at all, so the whole
+suite needs it — it is read from `.env.local` locally and from repository secrets in CI.
+
+The authenticated specs additionally need `CLERK_SECRET_KEY` and skip without it. They sign
+in as `e2e+clerk_test@example.com`, created automatically on first run; `+clerk_test`
+addresses are Clerk's test identities and never receive real email. This requires **Email
+address** to be enabled as an identifier on the Clerk instance — the development instance is
+Google-OAuth-only by default, and user creation fails until it is turned on.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.

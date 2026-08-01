@@ -1,0 +1,41 @@
+import { expect, test } from "@playwright/test";
+
+/**
+ * Unauthenticated behaviour. These need no Clerk credentials and no seeded data.
+ *
+ * The first test is the regression guard for the Clerk v4 -> v7 migration: v4's
+ * `authMiddleware({})` protected every matched route by default, v5+'s
+ * `clerkMiddleware()` protects nothing. When that was missed, `/` silently
+ * became public and there was no way to sign in — build, lint and type checks
+ * all still passed.
+ */
+test.describe("unauthenticated", () => {
+  test("the home page requires signing in", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveURL(/\/sign-in/);
+  });
+
+  test("the sign-in page renders Clerk's form", async ({ page }) => {
+    await page.goto("/sign-in");
+    // Completing Clerk's handshake is what actually proves the middleware
+    // matcher covers this route.
+    await expect(page).toHaveURL(/\/sign-in/);
+    await expect(page.locator("form, .cl-rootBox").first()).toBeVisible({
+      timeout: 20_000,
+    });
+  });
+
+  test("an unknown short link 404s", async ({ page }) => {
+    const response = await page.goto("/definitely-not-a-real-slug-xyz");
+    expect(response?.status()).toBe(404);
+  });
+
+  test("creating a link without a session is rejected", async ({ request }) => {
+    const response = await request.post("/api/create", {
+      data: { url: "https://example.com" },
+      failOnStatusCode: false,
+    });
+    expect(response.status()).toBe(401);
+    expect(await response.json()).toEqual({ error: "You must be logged in" });
+  });
+});

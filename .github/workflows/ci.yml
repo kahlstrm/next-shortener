@@ -32,3 +32,62 @@ jobs:
       # server-rendered on demand, so no secrets are needed here.
       - name: Build
         run: pnpm build
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v4
+      # ClerkProvider throws MissingPublishableKey without this, so the whole
+      # suite needs it — not just the authenticated specs. Forked PRs get no
+      # secrets, so skip rather than fail there.
+      - name: Check for Clerk credentials
+        id: creds
+        env:
+          PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+        run: |
+          if [ -n "$PUBLISHABLE_KEY" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Clerk credentials unavailable — skipping e2e"
+          fi
+      - name: Resolve pnpm store path
+        if: steps.creds.outputs.available == 'true'
+        id: pnpm-store
+        run: echo "path=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+      - name: Cache pnpm store
+        if: steps.creds.outputs.available == 'true'
+        uses: actions/cache@v6
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+      - name: Install dependencies
+        if: steps.creds.outputs.available == 'true'
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browser
+        if: steps.creds.outputs.available == 'true'
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Build
+        if: steps.creds.outputs.available == 'true'
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+      # The libsql container is started by playwright.config.mts via
+      # testcontainers; ubuntu runners already provide Docker.
+      - name: Run e2e tests
+        if: steps.creds.outputs.available == 'true'
+        run: pnpm test:e2e
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      - name: Upload report on failure
+        if: failure() && steps.creds.outputs.available == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

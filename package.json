@@ -10,7 +10,8 @@
     "kysely-generate": "DATABASE_URL=file:local.db pnpm db:migrate && DATABASE_URL=local.db kysely-codegen --out-file ./types/db.d.ts",
     "db:migrate": "node db_migration/migrate.mts",
     "test:db": "node --test db_migration/**/*.test.mts",
-    "db:status": "node db_migration/migrate.mts --status"
+    "db:status": "node db_migration/migrate.mts --status",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.6.4",
@@ -45,6 +46,9 @@
   },
   "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72",
   "devDependencies": {
-    "better-sqlite3": "^13.0.2"
+    "@clerk/testing": "2.2.16",
+    "@playwright/test": "1.62.1",
+    "better-sqlite3": "^13.0.2",
+    "testcontainers": "12.0.4"
   }
 }
