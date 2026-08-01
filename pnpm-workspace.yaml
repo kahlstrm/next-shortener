@@ -1,0 +1,4 @@
+# pnpm 11 blocks dependency build scripts by default; pnpm 8 ran them all.
+# unrs-resolver builds the native resolver used by eslint-import-resolver-typescript.
+allowBuilds:
+  unrs-resolver: true
