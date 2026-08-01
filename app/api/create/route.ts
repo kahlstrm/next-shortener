@@ -64,6 +64,9 @@ export async function POST(req: NextRequest) {
       );
     }
   }
-  revalidateTag("getUserUrls" + userId);
+  // Next 16 requires a cache profile. `{ expire: 0 }` keeps the pre-16 immediate
+  // expiry: the client calls router.refresh() straight after this, and "max"
+  // (stale-while-revalidate) would serve a list still missing the new link.
+  revalidateTag("getUserUrls" + userId, { expire: 0 });
   return NextResponse.json({ url, shorthand: short });
 }
