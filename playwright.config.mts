@@ -17,18 +17,28 @@ const APP_PORT = Number(process.env.E2E_APP_PORT) || 3100;
 // build: it speaks HTTP to a libsql server and cannot open a SQLite file. So the
 // tests run against a real libsql server in a throwaway container.
 //
-// This has to happen at config load rather than in globalSetup, because
-// Playwright starts `webServer` before globalSetup and does not pass along
-// environment variables it sets.
-const container = await new GenericContainer(
-  "ghcr.io/tursodatabase/libsql-server:v0.24.32",
-)
-  .withExposedPorts(8080)
-  .start();
+// This happens at config load rather than in a globalSetup, because Playwright
+// starts `webServer` first and does not pass along env vars a globalSetup sets.
+// Playwright re-loads this config in every worker process, so without this
+// guard each worker would start its own container: the app would talk to one
+// database while the specs seeded another. Workers inherit the runner's
+// environment, so they reuse the URL rather than starting anything.
+async function startDatabase() {
+  const container = await new GenericContainer(
+    "ghcr.io/tursodatabase/libsql-server:v0.24.32",
+  )
+    .withExposedPorts(8080)
+    .start();
 
-const DATABASE_URL = `http://${container.getHost()}:${container.getMappedPort(8080)}`;
+  const url = `http://${container.getHost()}:${container.getMappedPort(8080)}`;
+  await migrateToLatest(url);
+  return url;
+}
 
-await migrateToLatest(DATABASE_URL);
+const DATABASE_URL = process.env.E2E_DATABASE_URL ?? (await startDatabase());
+
+// The product specs seed links directly, bypassing the authenticated API.
+process.env.E2E_DATABASE_URL = DATABASE_URL;
 
 export default defineConfig({
   testDir: "./tests",
@@ -37,7 +47,6 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: process.env.CI ? [["github"], ["list"]] : [["list"]],
-  globalSetup: "./tests/global-setup.ts",
 
   use: {
     baseURL: `http://127.0.0.1:${APP_PORT}`,
@@ -49,6 +58,9 @@ export default defineConfig({
 
   webServer: {
     command: `pnpm start --port ${APP_PORT}`,
+    // Pages render through ClerkProvider, so the app needs the publishable key
+    // to serve anything. That key is public — it ships in the browser bundle —
+    // unlike CLERK_SECRET_KEY, which this suite no longer needs at all.
     url: `http://127.0.0.1:${APP_PORT}/sign-in`,
     reuseExistingServer: false,
     timeout: 180_000,

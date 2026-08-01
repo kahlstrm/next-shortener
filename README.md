@@ -72,17 +72,19 @@ container via testcontainers, migrates it, and runs the app against it, so **Doc
 running**. A container is used rather than a SQLite file because every route sets
 `runtime = "edge"`, where `@libsql/client` is the web build and cannot open local files.
 
-`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is required for the app to boot at all, so the whole
-suite needs it — it is read from `.env.local` locally and from repository secrets in CI.
+There are two groups:
 
-The authenticated specs additionally need `CLERK_SECRET_KEY` and skip without it. They sign
-in as `e2e+clerk_test@example.com`, created automatically on first run; `+clerk_test`
-addresses are Clerk's test identities and never receive real email. This requires **Email
-address** to be enabled as an identifier on the Clerk instance — the development instance is
-Google-OAuth-only by default, and user creation fails until it is turned on.
+- **`tests/auth.spec.ts`** — that Clerk is *enforced*: the home page redirects to sign-in,
+  `POST /api/create` answers 401, the sign-in page renders. No session is created.
+- **`tests/product.spec.ts`** — the shortener itself, with Clerk out of the picture. Links are
+  seeded straight into the database and fetched through `/[slug]`, which is a route handler
+  and so never renders the ClerkProvider layout.
 
-## Deploy on Vercel
+`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is required, because pages render through `ClerkProvider`
+and the app cannot serve any page without it. That key is public — it ships in the browser
+bundle. **`CLERK_SECRET_KEY` is not used by the suite**; it is an instance admin credential
+that can mint a session for any user, and is deliberately kept out of CI.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Slugs are suffixed with a per-run id: `/[slug]` caches lookups with `unstable_cache`, that
+cache lives in `.next/cache` and survives between runs, so a slug requested in an earlier run
+would keep serving its cached 404.

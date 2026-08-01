@@ -76,12 +76,14 @@ jobs:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
       # The libsql container is started by playwright.config.mts via
       # testcontainers; ubuntu runners already provide Docker.
+      # Only the publishable key is needed — it is public and ships in the
+      # browser bundle. CLERK_SECRET_KEY is an instance admin credential and is
+      # deliberately NOT given to CI.
       - name: Run e2e tests
         if: steps.creds.outputs.available == 'true'
         run: pnpm test:e2e
         env:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
       - name: Upload report on failure
         if: failure() && steps.creds.outputs.available == 'true'
         uses: actions/upload-artifact@v4

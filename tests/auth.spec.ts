@@ -10,6 +10,14 @@ import { expect, test } from "@playwright/test";
  * all still passed.
  */
 test.describe("unauthenticated", () => {
+  // ClerkProvider throws MissingPublishableKey without a key, so these can only
+  // assert anything when Clerk is configured. The product specs cover the
+  // shortener itself and need none of this.
+  test.skip(
+    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    "requires NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+  );
+
   test("the home page requires signing in", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveURL(/\/sign-in/);
