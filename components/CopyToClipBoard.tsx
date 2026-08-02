@@ -7,9 +7,7 @@ export function CopyToClipBoard({ path }: { path: string }) {
     <Button
       variant="outline"
       size="icon"
-      onClick={() =>
-        navigator.clipboard.writeText(`${window.location.origin}/${path}`)
-      }
+      onClick={() => navigator.clipboard.writeText(`${window.location.origin}/${path}`)}
     >
       <CopyIcon className="h-4 w-4" />
     </Button>

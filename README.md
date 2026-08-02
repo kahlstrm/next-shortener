@@ -30,10 +30,10 @@ Nothing runs them for you — not the Vercel build, not CI, not the app at start
 That means a deploy can ship code expecting a column that does not exist yet. The order
 matters:
 
-| Change | Order |
-| --- | --- |
-| Additive (new table/column, new index) | migrate **first**, then deploy |
-| Destructive (drop/rename a column) | deploy code that no longer uses it **first**, then migrate |
+| Change                                 | Order                                                      |
+| -------------------------------------- | ---------------------------------------------------------- |
+| Additive (new table/column, new index) | migrate **first**, then deploy                             |
+| Destructive (drop/rename a column)     | deploy code that no longer uses it **first**, then migrate |
 
 ### Applying to production
 
@@ -63,7 +63,9 @@ SQLite files — no database required.
 ## Tests
 
 ```shell
-pnpm lint       # oxlint
+pnpm lint          # oxlint + a narrow ESLint pass
+pnpm format        # oxfmt (write)
+pnpm format:check  # oxfmt (check only)
 pnpm test:unit  # migration + link-creation tests (node --test)
 pnpm test:e2e   # end-to-end (Playwright)
 ```
@@ -71,7 +73,7 @@ pnpm test:e2e   # end-to-end (Playwright)
 Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
 `.oxlintrc.json`. It runs with `--max-warnings=0`, so warnings fail rather than scroll past.
 
-Enabling a plugin only makes its rules *available* — oxlint still activates just its
+Enabling a plugin only makes its rules _available_ — oxlint still activates just its
 `correctness` category. Rules that `eslint-config-next` enabled but oxlint ranks lower are
 switched on explicitly in `rules`; without that, a conditionally-called hook lints clean.
 
@@ -91,7 +93,7 @@ running**. A container is used rather than a SQLite file because every route set
 
 There are two groups:
 
-- **`tests/auth.spec.ts`** — that Clerk is *enforced*: the home page redirects to sign-in,
+- **`tests/auth.spec.ts`** — that Clerk is _enforced_: the home page redirects to sign-in,
   `POST /api/create` answers 401, the sign-in page renders. No session is created.
 - **`tests/product.spec.ts`** — the shortener itself, with Clerk out of the picture. Links are
   seeded straight into the database and fetched through `/[slug]`, which is a route handler

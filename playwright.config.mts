@@ -24,9 +24,7 @@ const APP_PORT = Number(process.env.E2E_APP_PORT) || 3100;
 // database while the specs seeded another. Workers inherit the runner's
 // environment, so they reuse the URL rather than starting anything.
 async function startDatabase() {
-  const container = await new GenericContainer(
-    "ghcr.io/tursodatabase/libsql-server:v0.24.32",
-  )
+  const container = await new GenericContainer("ghcr.io/tursodatabase/libsql-server:v0.24.32")
     .withExposedPorts(8080)
     .start();
 

@@ -15,13 +15,9 @@ export type CreateLinkResult =
 /** Injectable so tests can force collisions instead of relying on chance. */
 export type ShorthandGenerator = (length: number) => string;
 
-const randomShorthand: ShorthandGenerator = (length) =>
-  new ShortUniqueId({ length }).randomUUID();
+const randomShorthand: ShorthandGenerator = (length) => new ShortUniqueId({ length }).randomUUID();
 
-async function insert(
-  db: Kysely<DB>,
-  values: { user_id: string; url: string; shorthand: string },
-) {
+async function insert(db: Kysely<DB>, values: { user_id: string; url: string; shorthand: string }) {
   await db.insertInto("shortened_links").values(values).executeTakeFirstOrThrow();
 }
 
@@ -35,11 +31,7 @@ async function insert(
  */
 export async function createShortLink(
   db: Kysely<DB>,
-  {
-    userId,
-    url,
-    shorthand,
-  }: { userId: string; url: string; shorthand?: string },
+  { userId, url, shorthand }: { userId: string; url: string; shorthand?: string },
   generate: ShorthandGenerator = randomShorthand,
 ): Promise<CreateLinkResult> {
   if (shorthand) {
@@ -65,7 +57,5 @@ export async function createShortLink(
     }
   }
 
-  throw new Error(
-    `could not allocate a unique shorthand up to ${MAX_LENGTH} characters`,
-  );
+  throw new Error(`could not allocate a unique shorthand up to ${MAX_LENGTH} characters`);
 }

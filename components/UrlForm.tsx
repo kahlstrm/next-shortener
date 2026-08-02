@@ -56,9 +56,7 @@ export function UrlForm() {
               <FormControl>
                 <Input placeholder="https://kalski.xyz" {...field} />
               </FormControl>
-              <FormDescription>
-                This is the URL you want shortened
-              </FormDescription>
+              <FormDescription>This is the URL you want shortened</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -75,8 +73,8 @@ export function UrlForm() {
                 <Input placeholder="example" {...field} />
               </FormControl>
               <FormDescription>
-                This is the shortened suffix for the link (e.g.{" "}
-                {process.env.NEXT_PUBLIC_SITE_URL}/example)
+                This is the shortened suffix for the link (e.g. {process.env.NEXT_PUBLIC_SITE_URL}
+                /example)
               </FormDescription>
               <FormMessage />
             </FormItem>

@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import type { NextRequest} from "next/server";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { ZodError } from "zod";
@@ -13,11 +13,7 @@ export const preferredRegion = ["fra1", "iad1"];
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
-  if (!userId)
-    return NextResponse.json(
-      { error: "You must be logged in" },
-      { status: 401 }
-    );
+  if (!userId) return NextResponse.json({ error: "You must be logged in" }, { status: 401 });
 
   const body = await req.json();
   let parsed: ReturnType<typeof formSchema.parse>;
@@ -32,10 +28,7 @@ export async function POST(req: NextRequest) {
 
   const result = await createShortLink(getDB(), { userId, ...parsed });
   if (!result.ok) {
-    return NextResponse.json(
-      { error: "Shorthand already exists" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Shorthand already exists" }, { status: 400 });
   }
 
   // Next 16 requires a cache profile. `{ expire: 0 }` keeps the pre-16 immediate
