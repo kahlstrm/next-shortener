@@ -63,9 +63,15 @@ SQLite files — no database required.
 ## Tests
 
 ```shell
+pnpm lint       # oxlint
 pnpm test:unit  # migration + link-creation tests (node --test)
 pnpm test:e2e   # end-to-end (Playwright)
 ```
+
+Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
+`.oxlintrc.json` with the `nextjs`, `react` and `jsx-a11y` plugins enabled so it covers what
+`eslint-config-next` did. It runs with `--max-warnings=0`, so warnings fail rather than
+scroll past.
 
 The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
 container via testcontainers, migrates it, and runs the app against it, so **Docker must be

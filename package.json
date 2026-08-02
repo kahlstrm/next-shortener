@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "oxlint --max-warnings=0",
     "kysely-generate": "DATABASE_URL=file:local.db pnpm db:migrate && DATABASE_URL=local.db kysely-codegen --out-file ./types/db.d.ts",
     "db:migrate": "node db_migration/migrate.mts",
     "db:status": "node db_migration/migrate.mts --status",
@@ -28,8 +28,6 @@
     "autoprefixer": "10.5.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "eslint": "^9.39.5",
-    "eslint-config-next": "^16.2.12",
     "kysely": "^0.29.4",
     "kysely-codegen": "^0.10.1",
     "next": "^16.2.12",
@@ -48,6 +46,7 @@
   "devDependencies": {
     "@playwright/test": "1.62.1",
     "better-sqlite3": "^13.0.2",
+    "oxlint": "1.76.0",
     "testcontainers": "12.0.4"
   }
 }
