@@ -69,9 +69,12 @@ pnpm test:e2e   # end-to-end (Playwright)
 ```
 
 Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
-`.oxlintrc.json` with the `nextjs`, `react` and `jsx-a11y` plugins enabled so it covers what
-`eslint-config-next` did. It runs with `--max-warnings=0`, so warnings fail rather than
-scroll past.
+`.oxlintrc.json`. It runs with `--max-warnings=0`, so warnings fail rather than scroll past.
+
+Enabling a plugin only makes its rules *available* — oxlint still activates just its
+`correctness` category. `react/rules-of-hooks` and `react/exhaustive-deps` sit below that, so
+they are switched on explicitly; `eslint-config-next` had them via
+`eslint-plugin-react-hooks`, and without this a conditionally-called hook lints clean.
 
 The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
 container via testcontainers, migrates it, and runs the app against it, so **Docker must be
