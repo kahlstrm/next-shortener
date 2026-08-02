@@ -80,10 +80,14 @@ There are two groups:
   seeded straight into the database and fetched through `/[slug]`, which is a route handler
   and so never renders the ClerkProvider layout.
 
-`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is required, because pages render through `ClerkProvider`
-and the app cannot serve any page without it. That key is public — it ships in the browser
-bundle. **`CLERK_SECRET_KEY` is not used by the suite**; it is an instance admin credential
-that can mint a session for any user, and is deliberately kept out of CI.
+The product specs need **no Clerk configuration at all** — Playwright waits on `/api/health`,
+a route handler outside the proxy matcher, so the server starts without a publishable key. Run
+them anywhere, including forked PRs. The auth specs skip when
+`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is absent, since pages render through `ClerkProvider` and
+cannot load without it. That key is public — it ships in the browser bundle.
+
+**`CLERK_SECRET_KEY` is not used by the suite**; it is an instance admin credential that can
+mint a session for any user, and is deliberately kept out of CI.
 
 Slugs are suffixed with a per-run id: `/[slug]` caches lookups with `unstable_cache`, that
 cache lives in `.next/cache` and survives between runs, so a slug requested in an earlier run

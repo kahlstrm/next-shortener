@@ -58,10 +58,10 @@ export default defineConfig({
 
   webServer: {
     command: `pnpm start --port ${APP_PORT}`,
-    // Pages render through ClerkProvider, so the app needs the publishable key
-    // to serve anything. That key is public — it ships in the browser bundle —
-    // unlike CLERK_SECRET_KEY, which this suite no longer needs at all.
-    url: `http://127.0.0.1:${APP_PORT}/sign-in`,
+    // /api/health is a route handler outside the proxy matcher, so it answers
+    // without Clerk configured. Probing a page instead would make the whole
+    // suite — including the Clerk-free product specs — need a publishable key.
+    url: `http://127.0.0.1:${APP_PORT}/api/health`,
     reuseExistingServer: false,
     timeout: 180_000,
     env: { DATABASE_URL },

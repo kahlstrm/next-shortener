@@ -28,9 +28,11 @@ test.describe("unauthenticated", () => {
     // Completing Clerk's handshake is what actually proves the middleware
     // matcher covers this route.
     await expect(page).toHaveURL(/\/sign-in/);
-    await expect(page.locator("form, .cl-rootBox").first()).toBeVisible({
-      timeout: 20_000,
-    });
+    // Assert an interactive control, not the wrapper: .cl-rootBox mounts even
+    // when the handshake stalls and no usable form ever appears.
+    await expect(
+      page.locator(".cl-rootBox button, .cl-rootBox input").first(),
+    ).toBeVisible({ timeout: 20_000 });
   });
 
   test("an unknown short link 404s", async ({ page }) => {
