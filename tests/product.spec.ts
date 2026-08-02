@@ -72,6 +72,29 @@ test.describe("shortener", () => {
     expect(two.headers()["location"]).toBe("https://example.com/two");
   });
 
+  // Someone hitting a link before it exists must not poison it. `/[slug]`
+  // caches through `unstable_cache` with revalidate: 3600, so a cached miss
+  // would otherwise keep 404ing for an hour after the link was created.
+  test("serves a link created after someone already tried the slug", async ({
+    request,
+  }) => {
+    const shorthand = slug("tried-early");
+
+    const before = await request.get(`/${shorthand}`, {
+      failOnStatusCode: false,
+    });
+    expect(before.status()).toBe(404);
+
+    await seedLink(shorthand, "https://example.com/created-later");
+
+    const after = await request.get(`/${shorthand}`, {
+      maxRedirects: 0,
+      failOnStatusCode: false,
+    });
+    expect(after.status()).toBe(302);
+    expect(after.headers()["location"]).toBe("https://example.com/created-later");
+  });
+
   test("treats shorthands as case-sensitive", async ({ request }) => {
     const shorthand = slug("CaseSensitive");
     await seedLink(shorthand, "https://example.com/exact");

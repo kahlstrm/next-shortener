@@ -57,13 +57,13 @@ also confirms you are pointed at the database you think you are.
 `pnpm kysely-generate` migrates a local `local.db` and regenerates `types/db.d.ts` from
 it. Run it after adding a migration so the generated types match.
 
-Migration behaviour is covered by `pnpm test:db`, which runs in CI against throwaway
+Migration behaviour is covered by `pnpm test:unit`, which runs in CI against throwaway
 SQLite files — no database required.
 
 ## Tests
 
 ```shell
-pnpm test:db    # migration unit tests (node --test)
+pnpm test:unit  # migration + link-creation tests (node --test)
 pnpm test:e2e   # end-to-end (Playwright)
 ```
 

@@ -26,8 +26,8 @@ jobs:
       - name: Lint
         run: pnpm lint
       # Runs the migrations against throwaway SQLite files, so no database is needed.
-      - name: Migration tests
-        run: pnpm test:db
+      - name: Unit tests
+        run: pnpm test:unit
       # `next build` type-checks as part of the build, and every route is
       # server-rendered on demand, so no secrets are needed here.
       - name: Build
