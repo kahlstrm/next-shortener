@@ -71,7 +71,7 @@ pnpm test:e2e   # end-to-end (Playwright)
 ```
 
 Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
-`.oxlintrc.json`. It runs with `--max-warnings=0`, so warnings fail rather than scroll past.
+`.oxlintrc.json`. Both passes run with `--max-warnings=0`, so warnings fail rather than scroll past — without it on the ESLint side, `exhaustive-deps` (a warning) would never fail a build.
 
 Enabling a plugin only makes its rules _available_ — oxlint still activates just its
 `correctness` category. Rules that `eslint-config-next` enabled but oxlint ranks lower are
