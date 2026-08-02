@@ -69,7 +69,7 @@ SQLite files — no database required.
 ## Tests
 
 ```shell
-pnpm lint          # oxlint + a narrow ESLint pass
+pnpm lint          # oxlint
 pnpm format        # oxfmt (write)
 pnpm format:check  # oxfmt (check only)
 pnpm test:unit  # migration + link-creation tests (node --test)
@@ -77,20 +77,18 @@ pnpm test:e2e   # end-to-end (Playwright)
 ```
 
 Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
-`.oxlintrc.json`. Both passes run with `--max-warnings=0`, so warnings fail rather than scroll past — without it on the ESLint side, `exhaustive-deps` (a warning) would never fail a build.
+`.oxlintrc.json`. It runs with `--max-warnings=0`, so warnings fail rather than scroll past.
 
 Enabling a plugin only makes its rules _available_ — oxlint still activates just its
 `correctness` category. Rules that `eslint-config-next` enabled but oxlint ranks lower are
 switched on explicitly in `rules`; without that, a conditionally-called hook lints clean.
 
-`pnpm lint` runs oxlint and then a **narrow ESLint pass**. oxlint 1.76 does not implement the
-React Compiler-era rules from `eslint-plugin-react-hooks@7` — `set-state-in-render`,
-`set-state-in-effect`, `immutability`, `purity`, `refs`, `static-components`, `use-memo` — and
-they cannot be recovered by configuration, so `eslint.config.mjs` enables just that plugin.
-
-It deliberately does not use `eslint-config-next`: that pulls `eslint-plugin-react`, which has
-no ESLint 10 support and would pin the project to ESLint 9. Even with the extra pass the
-dependency tree is far smaller — roughly 773 packages against 1353 before.
+**Known gap.** `eslint-plugin-react-hooks@7` ships React Compiler-era rules —
+`set-state-in-render`, `set-state-in-effect`, `immutability`, `purity`, `refs`,
+`static-components`, `use-memo` — that oxlint does not implement. ESLint was kept briefly to
+cover them, then dropped in favour of a single linter. `rules-of-hooks` and `exhaustive-deps`
+are still enforced by oxlint; those seven are not, so calling `setState` during render lints
+clean.
 
 The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
 container via testcontainers, migrates it, and runs the app against it, so **Docker must be
