@@ -10,6 +10,12 @@ pnpm install
 pnpm dev
 ```
 
+## Dependencies
+
+`@types/node` is pinned to the **24.x** line to match the Node version in `mise.toml`. Tooling
+will keep offering newer majors — they describe APIs that do not exist in Node 24, so code
+would type-check and then fail at runtime. Bump it only alongside the runtime.
+
 ## Database
 
 Schema changes are [Kysely migrations](https://kysely.dev/docs/migrations) in
