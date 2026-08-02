@@ -75,11 +75,14 @@ Enabling a plugin only makes its rules *available* — oxlint still activates ju
 `correctness` category. Rules that `eslint-config-next` enabled but oxlint ranks lower are
 switched on explicitly in `rules`; without that, a conditionally-called hook lints clean.
 
-**Known gap:** `eslint-plugin-react-hooks@7` also ships React Compiler-era rules —
-`set-state-in-render`, `set-state-in-effect`, `immutability`, `purity`, `refs`,
-`static-components`, `use-memo` — which oxlint 1.76 does not implement. They are not
-recoverable by configuration. This project does not enable React Compiler, so the practical
-loss is small, but it is a real reduction in coverage versus the previous setup.
+`pnpm lint` runs oxlint and then a **narrow ESLint pass**. oxlint 1.76 does not implement the
+React Compiler-era rules from `eslint-plugin-react-hooks@7` — `set-state-in-render`,
+`set-state-in-effect`, `immutability`, `purity`, `refs`, `static-components`, `use-memo` — and
+they cannot be recovered by configuration, so `eslint.config.mjs` enables just that plugin.
+
+It deliberately does not use `eslint-config-next`: that pulls `eslint-plugin-react`, which has
+no ESLint 10 support and would pin the project to ESLint 9. Even with the extra pass the
+dependency tree is far smaller — roughly 773 packages against 1353 before.
 
 The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
 container via testcontainers, migrates it, and runs the app against it, so **Docker must be

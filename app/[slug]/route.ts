@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest} from "next/server";
+import { NextResponse } from "next/server";
 import { revalidateTag, unstable_cache } from "next/cache";
 
 import { getDB } from "../../lib/db";

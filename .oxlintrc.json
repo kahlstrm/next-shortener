@@ -18,7 +18,11 @@
     "react/jsx-no-comment-textnodes": "error",
     "react/no-unescaped-entities": "error",
     "react/require-render-return": "error",
-    "import/no-anonymous-default-export": "warn"
+    "import/no-anonymous-default-export": "warn",
+    "typescript/no-explicit-any": "warn",
+    "typescript/consistent-type-imports": "warn",
+    "typescript/no-unnecessary-type-assertion": "warn",
+    "typescript/no-import-type-side-effects": "warn"
   },
   "ignorePatterns": [
     ".next/**",

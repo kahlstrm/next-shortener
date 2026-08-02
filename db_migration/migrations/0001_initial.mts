@@ -1,4 +1,5 @@
-import { Kysely, sql } from "kysely";
+import type { Kysely} from "kysely";
+import { sql } from "kysely";
 
 /**
  * Reproduces the schema Atlas previously applied from schema.hcl.
