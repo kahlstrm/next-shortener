@@ -57,11 +57,40 @@ also confirms you are pointed at the database you think you are.
 `pnpm kysely-generate` migrates a local `local.db` and regenerates `types/db.d.ts` from
 it. Run it after adding a migration so the generated types match.
 
-Migration behaviour is covered by `pnpm test:db`, which runs in CI against throwaway
+Migration behaviour is covered by `pnpm test:unit`, which runs in CI against throwaway
 SQLite files — no database required.
 
-## Deploy on Vercel
+## Tests
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```shell
+pnpm test:unit  # migration + link-creation tests (node --test)
+pnpm test:e2e   # end-to-end (Playwright)
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
+container via testcontainers, migrates it, and runs the app against it, so **Docker must be
+running**. A container is used rather than a SQLite file because every route sets
+`runtime = "edge"`, where `@libsql/client` is the web build and cannot open local files.
+
+There are two groups:
+
+- **`tests/auth.spec.ts`** — that Clerk is *enforced*: the home page redirects to sign-in,
+  `POST /api/create` answers 401, the sign-in page renders. No session is created.
+- **`tests/product.spec.ts`** — the shortener itself, with Clerk out of the picture. Links are
+  seeded straight into the database and fetched through `/[slug]`, which is a route handler
+  and so never renders the ClerkProvider layout.
+
+The product specs need **no Clerk configuration at all** — Playwright waits on `/api/health`,
+a route handler outside the proxy matcher, so the server starts without a publishable key. Run
+them anywhere, including forked PRs. The auth specs skip when
+`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is absent, since pages render through `ClerkProvider` and
+cannot load without it. That key is public — it ships in the browser bundle.
+
+The auth specs need **both** Clerk keys — `clerkMiddleware` and `auth.protect` throw
+`MissingSecretKey` without `CLERK_SECRET_KEY`. That key is an instance admin credential which
+can mint a session for any user, so it is deliberately kept out of CI; the auth specs skip
+there and run locally, where `.env.local` supplies both.
+
+Slugs are suffixed with a per-run id: `/[slug]` caches lookups with `unstable_cache`, that
+cache lives in `.next/cache` and survives between runs, so a slug requested in an earlier run
+would keep serving its cached 404.
