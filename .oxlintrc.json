@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "jsx-a11y", "nextjs", "import", "typescript", "unicorn", "oxc"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "import/no-unassigned-import": "off",
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/display-name": "error",
+    "react/jsx-no-comment-textnodes": "error",
+    "react/no-unescaped-entities": "error",
+    "react/require-render-return": "error",
+    "import/no-anonymous-default-export": "warn",
+    "typescript/no-explicit-any": "warn",
+    "typescript/consistent-type-imports": "warn",
+    "typescript/no-unnecessary-type-assertion": "warn",
+    "typescript/no-import-type-side-effects": "warn"
+  },
+  "ignorePatterns": [".next/**", "out/**", "build/**", "next-env.d.ts", "types/db.d.ts"]
+}

@@ -30,10 +30,10 @@ Nothing runs them for you — not the Vercel build, not CI, not the app at start
 That means a deploy can ship code expecting a column that does not exist yet. The order
 matters:
 
-| Change | Order |
-| --- | --- |
-| Additive (new table/column, new index) | migrate **first**, then deploy |
-| Destructive (drop/rename a column) | deploy code that no longer uses it **first**, then migrate |
+| Change                                 | Order                                                      |
+| -------------------------------------- | ---------------------------------------------------------- |
+| Additive (new table/column, new index) | migrate **first**, then deploy                             |
+| Destructive (drop/rename a column)     | deploy code that no longer uses it **first**, then migrate |
 
 ### Applying to production
 
@@ -63,9 +63,28 @@ SQLite files — no database required.
 ## Tests
 
 ```shell
+pnpm lint          # oxlint + a narrow ESLint pass
+pnpm format        # oxfmt (write)
+pnpm format:check  # oxfmt (check only)
 pnpm test:unit  # migration + link-creation tests (node --test)
 pnpm test:e2e   # end-to-end (Playwright)
 ```
+
+Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
+`.oxlintrc.json`. Both passes run with `--max-warnings=0`, so warnings fail rather than scroll past — without it on the ESLint side, `exhaustive-deps` (a warning) would never fail a build.
+
+Enabling a plugin only makes its rules _available_ — oxlint still activates just its
+`correctness` category. Rules that `eslint-config-next` enabled but oxlint ranks lower are
+switched on explicitly in `rules`; without that, a conditionally-called hook lints clean.
+
+`pnpm lint` runs oxlint and then a **narrow ESLint pass**. oxlint 1.76 does not implement the
+React Compiler-era rules from `eslint-plugin-react-hooks@7` — `set-state-in-render`,
+`set-state-in-effect`, `immutability`, `purity`, `refs`, `static-components`, `use-memo` — and
+they cannot be recovered by configuration, so `eslint.config.mjs` enables just that plugin.
+
+It deliberately does not use `eslint-config-next`: that pulls `eslint-plugin-react`, which has
+no ESLint 10 support and would pin the project to ESLint 9. Even with the extra pass the
+dependency tree is far smaller — roughly 773 packages against 1353 before.
 
 The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
 container via testcontainers, migrates it, and runs the app against it, so **Docker must be
@@ -74,7 +93,7 @@ running**. A container is used rather than a SQLite file because every route set
 
 There are two groups:
 
-- **`tests/auth.spec.ts`** — that Clerk is *enforced*: the home page redirects to sign-in,
+- **`tests/auth.spec.ts`** — that Clerk is _enforced_: the home page redirects to sign-in,
   `POST /api/create` answers 401, the sign-in page renders. No session is created.
 - **`tests/product.spec.ts`** — the shortener itself, with Clerk out of the picture. Links are
   seeded straight into the database and fetched through `/[slug]`, which is a route handler

@@ -6,8 +6,5 @@ export const formSchema = z.object({
     .startsWith("http", "URL must start with http:// or https://")
     .url("Please enter a valid URL")
     .max(2000, "URL must be shorter than 2000 characters"),
-  shorthand: z
-    .string()
-    .max(30, "shorthand must be less than 30 characters")
-    .optional(),
+  shorthand: z.string().max(30, "shorthand must be less than 30 characters").optional(),
 });

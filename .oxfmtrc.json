@@ -1,0 +1,12 @@
+{
+  "ignorePatterns": [
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "types/db.d.ts",
+    "package.json",
+    "tsconfig.json",
+    "components.json"
+  ]
+}

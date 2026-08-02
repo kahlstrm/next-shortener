@@ -14,8 +14,7 @@ test.describe("unauthenticated", () => {
   // the first, and clerkMiddleware/auth.protect throw MissingSecretKey without
   // the second. The product specs cover the shortener itself and need neither.
   test.skip(
-    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-      !process.env.CLERK_SECRET_KEY,
+    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY,
     "requires NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY",
   );
 
@@ -31,9 +30,9 @@ test.describe("unauthenticated", () => {
     await expect(page).toHaveURL(/\/sign-in/);
     // Assert an interactive control, not the wrapper: .cl-rootBox mounts even
     // when the handshake stalls and no usable form ever appears.
-    await expect(
-      page.locator(".cl-rootBox button, .cl-rootBox input").first(),
-    ).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".cl-rootBox button, .cl-rootBox input").first()).toBeVisible({
+      timeout: 20_000,
+    });
   });
 
   test("an unknown short link 404s", async ({ page }) => {

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { revalidateTag, unstable_cache } from "next/cache";
 
 import { getDB } from "../../lib/db";
@@ -19,11 +20,10 @@ export async function GET(request: NextRequest) {
   const shorthand = decodeURI(pathname).slice(1);
 
   const tag = "getRedirectforPath" + pathname;
-  const cached = await unstable_cache(
-    () => lookup(shorthand),
-    ["getRedirectforPath", pathname],
-    { tags: [tag], revalidate: 3600 },
-  )();
+  const cached = await unstable_cache(() => lookup(shorthand), ["getRedirectforPath", pathname], {
+    tags: [tag],
+    revalidate: 3600,
+  })();
 
   // A miss is not trustworthy: the cache holds it for an hour, so a link created
   // after someone first tried the slug would keep 404ing. Hits stay cached —

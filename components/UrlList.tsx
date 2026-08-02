@@ -33,7 +33,7 @@ export async function UrlList() {
       return userUrls;
     },
     ["getUserUrls", userId],
-    { tags: ["getUserUrls" + userId], revalidate: 3600 }
+    { tags: ["getUserUrls" + userId], revalidate: 3600 },
   )();
 
   return (
@@ -52,15 +52,8 @@ export async function UrlList() {
           {userUrls.map((item) => (
             <TableRow key={item.shorthand}>
               <TableCell>
-                <a
-                  className="underline"
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {item.url.length > 60
-                    ? item.url.substring(0, 60) + "..."
-                    : item.url}
+                <a className="underline" href={item.url} target="_blank" rel="noopener noreferrer">
+                  {item.url.length > 60 ? item.url.substring(0, 60) + "..." : item.url}
                 </a>
               </TableCell>
               <TableCell>{item.shorthand}</TableCell>

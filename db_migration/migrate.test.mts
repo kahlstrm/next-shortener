@@ -42,11 +42,12 @@ async function describeSchema(url: string) {
 
     return {
       columns: columns.rows
-        .map((c) => `${c.name}:${c.type}:notnull=${c.notnull}:pk=${c.pk}:default=${c.dflt_value ?? "-"}`)
+        .map(
+          (c) =>
+            `${c.name}:${c.type}:notnull=${c.notnull}:pk=${c.pk}:default=${c.dflt_value ?? "-"}`,
+        )
         .sort(),
-      indexes: indexes.rows
-        .map((i) => `${i.name}:unique=${i.unique}:origin=${i.origin}`)
-        .sort(),
+      indexes: indexes.rows.map((i) => `${i.name}:unique=${i.unique}:origin=${i.origin}`).sort(),
     };
   } finally {
     await db.destroy();
@@ -110,9 +111,7 @@ describe("migrations", () => {
         shorthand: string;
         url: string;
       }>`select shorthand, url from shortened_links`.execute(after);
-      assert.deepEqual(rows.rows, [
-        { shorthand: "keepme", url: "https://example.com" },
-      ]);
+      assert.deepEqual(rows.rows, [{ shorthand: "keepme", url: "https://example.com" }]);
     } finally {
       await after.destroy();
     }

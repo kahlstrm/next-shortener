@@ -1,6 +1,6 @@
 import { Kysely } from "kysely";
 import { LibsqlDialect } from "@libsql/kysely-libsql";
-import { DB } from "../types/db";
+import type { DB } from "../types/db";
 
 export const getDB = () => {
   const url = process.env.DATABASE_URL;

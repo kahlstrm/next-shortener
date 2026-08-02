@@ -1,5 +1,4 @@
 # pnpm 11 blocks dependency build scripts by default; pnpm 8 ran them all.
-# unrs-resolver builds the native resolver used by eslint-import-resolver-typescript,
 # sharp builds the native image optimiser Next.js uses at build time, and
 # better-sqlite3 is the driver kysely-codegen needs to read the local SQLite file.
 # cpu-features, protobufjs and ssh2 arrive with testcontainers; their build steps
@@ -11,7 +10,6 @@ allowBuilds:
   protobufjs: false
   sharp: true
   ssh2: false
-  unrs-resolver: true
 
 # Next pins postcss to exactly 8.4.31, which carries three advisories and left a
 # second copy alongside the 8.5.x this project already depends on directly.

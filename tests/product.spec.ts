@@ -75,9 +75,7 @@ test.describe("shortener", () => {
   // Someone hitting a link before it exists must not poison it. `/[slug]`
   // caches through `unstable_cache` with revalidate: 3600, so a cached miss
   // would otherwise keep 404ing for an hour after the link was created.
-  test("serves a link created after someone already tried the slug", async ({
-    request,
-  }) => {
+  test("serves a link created after someone already tried the slug", async ({ request }) => {
     const shorthand = slug("tried-early");
 
     const before = await request.get(`/${shorthand}`, {

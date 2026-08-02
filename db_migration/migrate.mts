@@ -6,10 +6,7 @@ import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { Kysely } from "kysely";
 import { FileMigrationProvider, Migrator } from "kysely/migration";
 
-const migrationFolder = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "migrations",
-);
+const migrationFolder = path.join(path.dirname(fileURLToPath(import.meta.url)), "migrations");
 
 function createMigrator(databaseUrl: string) {
   const db = new Kysely<unknown>({

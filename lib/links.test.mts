@@ -61,11 +61,7 @@ describe("createShortLink", () => {
     });
 
     assert.equal(result.ok, true);
-    assert.equal(
-      result.ok && result.shorthand.length,
-      4,
-      "should start at the shortest length",
-    );
+    assert.equal(result.ok && result.shorthand.length, 4, "should start at the shortest length");
   });
 
   // The loop this replaced incremented its counter twice on failure, so it
@@ -99,11 +95,7 @@ describe("createShortLink", () => {
     });
 
     await assert.rejects(
-      createShortLink(
-        db,
-        { userId: "user_1", url: "https://example.com/x" },
-        () => "always",
-      ),
+      createShortLink(db, { userId: "user_1", url: "https://example.com/x" }, () => "always"),
       /could not allocate a unique shorthand/,
     );
   });

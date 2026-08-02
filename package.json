@@ -6,12 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "oxlint --max-warnings=0 && eslint --max-warnings=0 .",
     "kysely-generate": "DATABASE_URL=file:local.db pnpm db:migrate && DATABASE_URL=local.db kysely-codegen --out-file ./types/db.d.ts",
     "db:migrate": "node db_migration/migrate.mts",
     "db:status": "node db_migration/migrate.mts --status",
     "test:e2e": "playwright test",
-    "test:unit": "node --test \"db_migration/**/*.test.mts\" \"lib/**/*.test.mts\""
+    "test:unit": "node --test \"db_migration/**/*.test.mts\" \"lib/**/*.test.mts\"",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.6.4",
@@ -28,8 +30,6 @@
     "autoprefixer": "10.5.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "eslint": "^9.39.5",
-    "eslint-config-next": "^16.2.12",
     "kysely": "^0.29.4",
     "kysely-codegen": "^0.10.1",
     "next": "^16.2.12",
@@ -47,7 +47,12 @@
   "packageManager": "pnpm@11.17.0+sha512.cca3cea332ad254bb84145f966d19f4879615210346fc92c79a047f23a0d7b3cca3c3792f0076ba1f1831d277efbcf0a9119b31a9a60eca7fb3d6231f331ef72",
   "devDependencies": {
     "@playwright/test": "1.62.1",
+    "@typescript-eslint/parser": "8.65.0",
     "better-sqlite3": "^13.0.2",
+    "eslint": "10.8.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "oxfmt": "0.61.0",
+    "oxlint": "1.76.0",
     "testcontainers": "12.0.4"
   }
 }
