@@ -25,6 +25,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Lint
         run: pnpm lint
+      - name: Format check
+        run: pnpm format:check
       # Runs the migrations against throwaway SQLite files, so no database is needed.
       - name: Unit tests
         run: pnpm test:unit
