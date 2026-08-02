@@ -86,8 +86,10 @@ them anywhere, including forked PRs. The auth specs skip when
 `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is absent, since pages render through `ClerkProvider` and
 cannot load without it. That key is public — it ships in the browser bundle.
 
-**`CLERK_SECRET_KEY` is not used by the suite**; it is an instance admin credential that can
-mint a session for any user, and is deliberately kept out of CI.
+The auth specs need **both** Clerk keys — `clerkMiddleware` and `auth.protect` throw
+`MissingSecretKey` without `CLERK_SECRET_KEY`. That key is an instance admin credential which
+can mint a session for any user, so it is deliberately kept out of CI; the auth specs skip
+there and run locally, where `.env.local` supplies both.
 
 Slugs are suffixed with a per-run id: `/[slug]` caches lookups with `unstable_cache`, that
 cache lives in `.next/cache` and survives between runs, so a slug requested in an earlier run

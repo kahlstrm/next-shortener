@@ -10,12 +10,13 @@ import { expect, test } from "@playwright/test";
  * all still passed.
  */
 test.describe("unauthenticated", () => {
-  // ClerkProvider throws MissingPublishableKey without a key, so these can only
-  // assert anything when Clerk is configured. The product specs cover the
-  // shortener itself and need none of this.
+  // Both keys are needed: ClerkProvider throws MissingPublishableKey without
+  // the first, and clerkMiddleware/auth.protect throw MissingSecretKey without
+  // the second. The product specs cover the shortener itself and need neither.
   test.skip(
-    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
-    "requires NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+    !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+      !process.env.CLERK_SECRET_KEY,
+    "requires NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY",
   );
 
   test("the home page requires signing in", async ({ page }) => {
