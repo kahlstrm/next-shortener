@@ -72,9 +72,14 @@ Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
 `.oxlintrc.json`. It runs with `--max-warnings=0`, so warnings fail rather than scroll past.
 
 Enabling a plugin only makes its rules *available* — oxlint still activates just its
-`correctness` category. `react/rules-of-hooks` and `react/exhaustive-deps` sit below that, so
-they are switched on explicitly; `eslint-config-next` had them via
-`eslint-plugin-react-hooks`, and without this a conditionally-called hook lints clean.
+`correctness` category. Rules that `eslint-config-next` enabled but oxlint ranks lower are
+switched on explicitly in `rules`; without that, a conditionally-called hook lints clean.
+
+**Known gap:** `eslint-plugin-react-hooks@7` also ships React Compiler-era rules —
+`set-state-in-render`, `set-state-in-effect`, `immutability`, `purity`, `refs`,
+`static-components`, `use-memo` — which oxlint 1.76 does not implement. They are not
+recoverable by configuration. This project does not enable React Compiler, so the practical
+loss is small, but it is a real reduction in coverage versus the previous setup.
 
 The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
 container via testcontainers, migrates it, and runs the app against it, so **Docker must be
