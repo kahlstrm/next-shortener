@@ -19,13 +19,13 @@ You need a [Clerk](https://clerk.com/) application for auth and a
 
 ### Environment
 
-| Variable                                               | Notes                                                               |
-| ------------------------------------------------------ | ------------------------------------------------------------------- |
-| `DATABASE_URL`                                         | `libsql://…turso.io?authToken=…`                                    |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`                    | public; the app cannot render a page without it                     |
-| `CLERK_SECRET_KEY`                                     | **instance admin credential** — see [Checks](#checks)               |
-| `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_URL`                   | `/sign-in`, `/sign-up`                                              |
-| `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_FALLBACK_REDIRECT_URL` | `/` — renamed in Clerk v5; the old `AFTER_SIGN_*` names are ignored |
+| Variable                                               | Notes                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------------ |
+| `DATABASE_URL`                                         | `libsql://…turso.io?authToken=…`                                   |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`                    | public; the app cannot render a page without it                    |
+| `CLERK_SECRET_KEY`                                     | **instance admin credential** — see [Checks](#checks)              |
+| `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_URL`                   | `/sign-in`, `/sign-up`                                             |
+| `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_FALLBACK_REDIRECT_URL` | `/` — note the name: `AFTER_SIGN_IN_URL` etc. are silently ignored |
 
 ## Architecture
 
@@ -34,7 +34,7 @@ decisions here: on edge, `@libsql/client` resolves to its web build, which speak
 libsql server and cannot open a local SQLite file. So there is no "just use a file locally"
 option — see [Tests](#tests).
 
-Auth is Clerk middleware in `proxy.ts` (`middleware.ts` was renamed in Next 16):
+Auth is Clerk middleware, in `proxy.ts`:
 
 | Path                   | Behaviour                                                              |
 | ---------------------- | ---------------------------------------------------------------------- |
@@ -44,8 +44,8 @@ Auth is Clerk middleware in `proxy.ts` (`middleware.ts` was renamed in Next 16):
 | `/[slug]`              | **public** — a route handler, outside the matcher, never touches Clerk |
 | `/api/health`          | **public** — liveness, no Clerk                                        |
 
-`clerkMiddleware()` protects nothing by default, unlike v4's `authMiddleware({})`. The
-protected set is listed explicitly; dropping it silently makes the home page public.
+`clerkMiddleware()` protects nothing on its own — the protected set above is what does it.
+Removing that call makes `/` public with no error anywhere.
 
 `/[slug]` caches lookups with `unstable_cache`, but never trusts a cached miss — a link
 created after someone first tried the slug would otherwise keep 404ing for an hour.
@@ -101,11 +101,9 @@ Enabling a plugin only makes its rules _available_ — oxlint activates just its
 category. Anything below that is switched on explicitly under `rules`; without that, a
 conditionally-called hook lints clean.
 
-**Known gap.** `eslint-plugin-react-hooks` ships React Compiler-era rules —
-`set-state-in-render`, `set-state-in-effect`, `immutability`, `purity`, `refs`,
-`static-components`, `use-memo` — that oxlint does not implement, and there is no ESLint pass
-here. `rules-of-hooks` and `exhaustive-deps` _are_ enforced; calling `setState` during render
-is not caught.
+**Not checked.** `rules-of-hooks` and `exhaustive-deps` are enforced, but the React
+Compiler-era rules are not — oxlint does not implement them. Calling `setState` during render
+or in an effect, mutating props, or reading a ref during render will all lint clean.
 
 ### Tests
 
