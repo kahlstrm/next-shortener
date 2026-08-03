@@ -23,7 +23,7 @@ You need a [Clerk](https://clerk.com/) application for auth and a
 | ------------------------------------------------------ | ------------------------------------------------------------------ |
 | `DATABASE_URL`                                         | `libsql://…turso.io?authToken=…`                                   |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`                    | public; the app cannot render a page without it                    |
-| `CLERK_SECRET_KEY`                                     | **instance admin credential** — see [Checks](#checks)              |
+| `CLERK_SECRET_KEY`                                     | can mint a session for any user — keep it out of CI                |
 | `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_URL`                   | `/sign-in`, `/sign-up`                                             |
 | `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_FALLBACK_REDIRECT_URL` | `/` — note the name: `AFTER_SIGN_IN_URL` etc. are silently ignored |
 
@@ -32,7 +32,7 @@ You need a [Clerk](https://clerk.com/) application for auth and a
 **Every route runs on the edge runtime.** That is the constraint behind most of the
 decisions here: on edge, `@libsql/client` resolves to its web build, which speaks HTTP to a
 libsql server and cannot open a local SQLite file. So there is no "just use a file locally"
-option — see [Tests](#tests).
+option — the e2e suite runs a libsql container instead.
 
 Auth is Clerk middleware, in `proxy.ts`:
 
@@ -86,44 +86,11 @@ pnpm lint          # oxlint
 pnpm format        # oxfmt, write
 pnpm format:check  # oxfmt, check only
 pnpm test:unit     # node --test
-pnpm test:e2e      # Playwright
+pnpm test:e2e      # Playwright — needs Docker running
 ```
 
 CI runs `lint`, `format:check`, `test:unit`, `test:e2e` and the build on every push and pull
 request.
-
-### Linting
-
-[oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in `.oxlintrc.json`, with
-`--max-warnings=0` so warnings fail rather than scroll past.
-
-Enabling a plugin only makes its rules _available_ — oxlint activates just its `correctness`
-category. Anything below that is switched on explicitly under `rules`; without that, a
-conditionally-called hook lints clean.
-
-**Not checked.** `rules-of-hooks` and `exhaustive-deps` are enforced, but the React
-Compiler-era rules are not — oxlint does not implement them. Calling `setState` during render
-or in an effect, mutating props, or reading a ref during render will all lint clean.
-
-### Tests
-
-`pnpm test:unit` covers migrations, link creation, the zod schema and the react-hook-form
-resolver. Plain Node, file-backed SQLite, no browser.
-
-`pnpm test:e2e` starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
-container via testcontainers, migrates it and runs the app against it — so **Docker must be
-running**. Two groups:
-
-- **`tests/auth.spec.ts`** — that Clerk is _enforced_: `/` redirects to sign-in,
-  `POST /api/create` answers 401, the sign-in page renders. Needs **both** Clerk keys, since
-  `auth.protect` throws `MissingSecretKey` without the secret one.
-- **`tests/product.spec.ts`** — the shortener itself, needing **no Clerk configuration at
-  all**. Links are seeded straight into the database and fetched through `/[slug]`; Playwright
-  waits on `/api/health` so the server starts without a publishable key.
-
-`CLERK_SECRET_KEY` can mint a session for any user in the instance, so it is deliberately
-**not** in CI. The auth specs skip there and run locally. That is why CI reports
-`5 passed, 4 skipped`.
 
 ## Deployment
 

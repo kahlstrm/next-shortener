@@ -1,8 +1,15 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // Listing a plugin only makes its rules available — oxlint activates just the
+  // `correctness` category, so anything below that is enabled explicitly below.
+  // Not implemented by oxlint, so not checked anywhere: the React Compiler-era
+  // rules (set-state-in-render, set-state-in-effect, immutability, purity, refs,
+  // static-components, use-memo). setState during render lints clean.
   "plugins": ["react", "jsx-a11y", "nextjs", "import", "typescript", "unicorn", "oxc"],
   "rules": {
+    // Automatic JSX runtime is in use, so React need not be in scope.
     "react/react-in-jsx-scope": "off",
+    // app/layout.tsx imports globals.css for its side effect.
     "import/no-unassigned-import": "off",
     "react/rules-of-hooks": "error",
     "react/exhaustive-deps": "warn",
