@@ -1,119 +1,117 @@
-Basic URL-shortener, trying out the new App Router & RSC Next.JS along with some random other tools ([Kysely](https://kysely.dev/), [Turso](https://turso.tech/) etc.)
+A URL shortener, and a place to try out App Router / RSC Next.js with
+[Kysely](https://kysely.dev/), [Turso](https://turso.tech/) and [Clerk](https://clerk.com/).
 
-## Development
+Deployed at [l.kalski.xyz](https://l.kalski.xyz).
 
-You need to setup [Clerk](https://clerk.com/) for auth and [Turso](https://turso.tech/) for DB connection.
+## Getting started
+
+Toolchain versions are pinned in `mise.toml` ([mise](https://mise.jdx.dev)):
 
 ```shell
-cp .env.example .env.local
+mise install                # Node + pnpm
+cp .env.example .env.local  # then fill it in, see below
 pnpm install
 pnpm dev
 ```
 
-## Dependencies
+You need a [Clerk](https://clerk.com/) application for auth and a
+[Turso](https://turso.tech/) database.
 
-`@types/node` is pinned to the **24.x** line to match the Node version in `mise.toml`. Tooling
-will keep offering newer majors — they describe APIs that do not exist in Node 24, so code
-would type-check and then fail at runtime. Bump it only alongside the runtime.
+### Environment
+
+| Variable                                               | Notes                                                              |
+| ------------------------------------------------------ | ------------------------------------------------------------------ |
+| `DATABASE_URL`                                         | `libsql://…turso.io?authToken=…`                                   |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`                    | public; the app cannot render a page without it                    |
+| `CLERK_SECRET_KEY`                                     | can mint a session for any user — keep it out of CI                |
+| `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_URL`                   | `/sign-in`, `/sign-up`                                             |
+| `NEXT_PUBLIC_CLERK_SIGN_{IN,UP}_FALLBACK_REDIRECT_URL` | `/` — note the name: `AFTER_SIGN_IN_URL` etc. are silently ignored |
+
+## Architecture
+
+**Every route runs on the edge runtime.** That is the constraint behind most of the
+decisions here: on edge, `@libsql/client` resolves to its web build, which speaks HTTP to a
+libsql server and cannot open a local SQLite file. So there is no "just use a file locally"
+option — the e2e suite runs a libsql container instead.
+
+Auth is Clerk middleware, in `proxy.ts`:
+
+| Path                   | Behaviour                                                              |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `/`                    | **protected** — `auth.protect()` redirects to sign-in                  |
+| `/api/create`          | middleware runs; the handler checks `auth()` itself and answers 401    |
+| `/sign-in`, `/sign-up` | middleware runs so Clerk's handshake can complete                      |
+| `/[slug]`              | **public** — a route handler, outside the matcher, never touches Clerk |
+| `/api/health`          | **public** — liveness, no Clerk                                        |
+
+`clerkMiddleware()` protects nothing on its own — the protected set above is what does it.
+Removing that call makes `/` public with no error anywhere.
+
+`/[slug]` caches lookups with `unstable_cache`, but never trusts a cached miss — a link
+created after someone first tried the slug would otherwise keep 404ing for an hour.
 
 ## Database
 
 Schema changes are [Kysely migrations](https://kysely.dev/docs/migrations) in
-`db_migration/migrations`. They run in order and are recorded in a `kysely_migration`
-table, so re-running applies only what is pending.
+`db_migration/migrations`. They run in order and are recorded in a `kysely_migration` table,
+so re-running applies only what is pending.
 
 ```shell
-DATABASE_URL=<url> pnpm db:status    # read-only: what is applied, what is pending
+DATABASE_URL=<url> pnpm db:status    # read-only: applied vs pending
 DATABASE_URL=<url> pnpm db:migrate   # apply everything pending
 ```
 
+`pnpm kysely-generate` migrates a local `local.db` and regenerates `types/db.d.ts` from it.
+Run it after adding a migration so the generated types match.
+
 ### ⚠️ Migrations are never applied automatically
 
-Nothing runs them for you — not the Vercel build, not CI, not the app at startup.
-`next build` only builds. **A schema change reaches production only when a human runs
-`pnpm db:migrate` against the production database.**
+Nothing runs them for you — not the Vercel build, not CI, not the app at startup. **A schema
+change reaches production only when a human runs `pnpm db:migrate` against it.**
 
-That means a deploy can ship code expecting a column that does not exist yet. The order
-matters:
+So a deploy can ship code expecting a column that does not exist. Order matters:
 
-| Change                                 | Order                                                      |
-| -------------------------------------- | ---------------------------------------------------------- |
-| Additive (new table/column, new index) | migrate **first**, then deploy                             |
-| Destructive (drop/rename a column)     | deploy code that no longer uses it **first**, then migrate |
+| Change                             | Order                                                     |
+| ---------------------------------- | --------------------------------------------------------- |
+| Additive (new table/column/index)  | migrate **first**, then deploy                            |
+| Destructive (drop/rename a column) | deploy code that stopped using it **first**, then migrate |
 
-### Applying to production
+Run `db:status` before `db:migrate` — it connects and reports without changing anything,
+which also confirms you are pointed at the database you think you are.
 
-Get the Turso URL (the same `DATABASE_URL` the Vercel project uses), then:
-
-```shell
-DATABASE_URL='libsql://<db>.turso.io?authToken=<token>' pnpm db:status
-DATABASE_URL='libsql://<db>.turso.io?authToken=<token>' pnpm db:migrate
-```
-
-Always run `db:status` first — it connects and reports without changing anything, which
-also confirms you are pointed at the database you think you are.
-
-> The production database predates this migration setup and has no `kysely_migration`
-> table yet. `0001_initial` is written entirely with `ifNotExists`, so the first
-> production run records it as applied **without touching the existing table or data**.
-> It is a bookkeeping no-op, and it needs to happen before any later migration can run.
-
-### Local database and types
-
-`pnpm kysely-generate` migrates a local `local.db` and regenerates `types/db.d.ts` from
-it. Run it after adding a migration so the generated types match.
-
-Migration behaviour is covered by `pnpm test:unit`, which runs in CI against throwaway
-SQLite files — no database required.
-
-## Tests
+## Checks
 
 ```shell
 pnpm lint          # oxlint
-pnpm format        # oxfmt (write)
-pnpm format:check  # oxfmt (check only)
-pnpm test:unit  # migration + link-creation tests (node --test)
-pnpm test:e2e   # end-to-end (Playwright)
+pnpm format        # oxfmt, write
+pnpm format:check  # oxfmt, check only
+pnpm test:unit     # node --test
+pnpm test:e2e      # Playwright — needs Docker running
 ```
 
-Linting is [oxlint](https://oxc.rs/docs/guide/usage/linter.html), configured in
-`.oxlintrc.json`. It runs with `--max-warnings=0`, so warnings fail rather than scroll past.
+CI runs `lint`, `format:check`, `test:unit`, `test:e2e` and the build on every push and pull
+request.
 
-Enabling a plugin only makes its rules _available_ — oxlint still activates just its
-`correctness` category. Rules that `eslint-config-next` enabled but oxlint ranks lower are
-switched on explicitly in `rules`; without that, a conditionally-called hook lints clean.
+## Deployment
 
-**Known gap.** `eslint-plugin-react-hooks@7` ships React Compiler-era rules —
-`set-state-in-render`, `set-state-in-effect`, `immutability`, `purity`, `refs`,
-`static-components`, `use-memo` — that oxlint does not implement. ESLint was kept briefly to
-cover them, then dropped in favour of a single linter. `rules-of-hooks` and `exhaustive-deps`
-are still enforced by oxlint; those seven are not, so calling `setState` during render lints
-clean.
+Vercel, on push. `next build` only builds — it does not migrate.
 
-The e2e suite starts a throwaway [libsql-server](https://github.com/tursodatabase/libsql)
-container via testcontainers, migrates it, and runs the app against it, so **Docker must be
-running**. A container is used rather than a SQLite file because every route sets
-`runtime = "edge"`, where `@libsql/client` is the web build and cannot open local files.
+### ⚠️ `ENABLE_EXPERIMENTAL_COREPACK=1` is required
 
-There are two groups:
+Set on Production and Preview. **Do not remove it.**
 
-- **`tests/auth.spec.ts`** — that Clerk is _enforced_: the home page redirects to sign-in,
-  `POST /api/create` answers 401, the sign-in page renders. No session is created.
-- **`tests/product.spec.ts`** — the shortener itself, with Clerk out of the picture. Links are
-  seeded straight into the database and fetched through `/[slug]`, which is a route handler
-  and so never renders the ClerkProvider layout.
+Vercel [supports pnpm 6–10 natively](https://vercel.com/docs/package-managers) and infers the
+version from `lockfileVersion`, which pnpm 11 leaves at `9.0`. Without corepack, Vercel picks
+pnpm 9, which rejects a `pnpm-workspace.yaml` that has no `packages:` field — and this one
+intentionally has only `allowBuilds` and `overrides`. The build fails with
+`ERROR packages field missing or empty`. With the variable set, Vercel reads `packageManager`
+from `package.json` instead.
 
-The product specs need **no Clerk configuration at all** — Playwright waits on `/api/health`,
-a route handler outside the proxy matcher, so the server starts without a publishable key. Run
-them anywhere, including forked PRs. The auth specs skip when
-`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is absent, since pages render through `ClerkProvider` and
-cannot load without it. That key is public — it ships in the browser bundle.
+## Gotchas
 
-The auth specs need **both** Clerk keys — `clerkMiddleware` and `auth.protect` throw
-`MissingSecretKey` without `CLERK_SECRET_KEY`. That key is an instance admin credential which
-can mint a session for any user, so it is deliberately kept out of CI; the auth specs skip
-there and run locally, where `.env.local` supplies both.
-
-Slugs are suffixed with a per-run id: `/[slug]` caches lookups with `unstable_cache`, that
-cache lives in `.next/cache` and survives between runs, so a slug requested in an earlier run
-would keep serving its cached 404.
+- **`@types/node` is pinned to the 24.x line** to match the Node version in `mise.toml`.
+  Tooling keeps offering newer majors; they describe APIs that do not exist in Node 24, so
+  code would type-check and then fail at runtime. Bump it only alongside the runtime.
+- **`pnpm-workspace.yaml` carries real configuration** — `allowBuilds` (pnpm 11 blocks
+  dependency build scripts by default) and an `overrides` entry deduping `postcss`, which Next
+  pins to a version carrying advisories.
