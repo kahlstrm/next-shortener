@@ -15,4 +15,6 @@ allowBuilds:
 # second copy alongside the 8.5.x this project already depends on directly.
 # 8.5.x is a backwards-compatible minor, so dedupe both to one patched version.
 overrides:
+  nanoid: 3.3.18
   postcss: 8.5.25
+  sharp: 0.35.0
